@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDS = 'dockerhub-creds' // Jenkins credentials ID for DockerHub
-        DOCKERHUB_REPO = 'basherr/lab-repository'
+        DOCKERHUB_CREDS = 'dockerhub-creds'
+        DOCKERHUB_REPO = 'makoorr/lab-repository'
         DOCKER_IMAGE_TAG = 'latest'
-        ANSIBLE_PLAYBOOK = './Ansible/deploy-to-k8s.yml' // Path to the Ansible playbook
-        ANSIBLE_INVENTORY = './Ansible/inventory.yml' // Path to the inventory file
-        VAR_FILE = './Ansible/vars.yml' // Path to the variable file
+        ANSIBLE_PLAYBOOK = './ansible/deploy-to-k8s.yml'
+        ANSIBLE_INVENTORY = './ansible/inventory.yml'
+        VAR_FILE = './ansible/vars.yml'
     }
 
     stages {
@@ -23,22 +23,21 @@ pipeline {
             steps {
                 echo 'Building Docker image...'
                 script {
-                    sh "docker build -t ${DOCKERHUB_REPO}:${DOCKER_IMAGE_TAG} ."
+                    docker.build("${DOCKERHUB_REPO}")
                 }
             }
         }
-
         stage('Push to DockerHub') {
             steps {
                 echo 'Pushing Docker image to DockerHub...'
                 script {
-                    sh """
-                    docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}
-                    docker push ${DOCKERHUB_REPO}:${DOCKER_IMAGE_TAG}
-                    """
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKERHUB_CREDS}") {
+                        docker.image("${DOCKERHUB_REPO}").push('latest')
+                    }
                 }
             }
         }
+    }
 
         stage('Deploy to Kubernetes') {
             steps {
