@@ -42,9 +42,12 @@ pipeline {
             steps {
                 echo 'Deploying updated image to Kubernetes using Ansible...'
                 script {
-                    sh """
-                    ansible-playbook -i ${ANSIBLE_INVENTORY} ${ANSIBLE_PLAYBOOK} --extra-vars "@${VAR_FILE}"
-                    """
+                    ansiblePlaybook(
+                        playbook: "${ANSIBLE_PLAYBOOK}",
+                        inventory: "${ANSIBLE_INVENTORY}",
+                        extras: '--extra-vars "@${VAR_FILE}"',
+                        colorized: true
+                    )
                 }
             }
         }
