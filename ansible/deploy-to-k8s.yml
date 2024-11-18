@@ -1,0 +1,29 @@
+---
+- name: Update Kubernetes Deployment with New Image
+  hosts: minikube-vm
+  become: yes
+
+  tasks:
+    - name: Ensure kubectl is installed
+      command: which kubectl
+      register: kubectl_check
+      failed_when: kubectl_check.rc != 0
+
+    - name: Pull the latest Docker image
+      shell: docker pull "{{ docker_image }}"
+      register: docker_pull_result
+
+    - name: Update Kubernetes deployment with the new image
+      shell: |
+        kubectl set image deployment/webapp-deployment webapp-container={{ docker_image }} --record
+      register: k8s_update_result
+
+    - name: Check deployment rollout status
+      shell: |
+        kubectl rollout status deployment/webapp-deployment
+      register: rollout_status
+      failed_when: "'successfully' not in rollout_status.stdout"
+
+    - name: Output rollout result
+      debug:
+        msg: "{{ rollout_status.stdout }}"
