@@ -16,11 +16,15 @@
     - name: Update Kubernetes deployment with the new image
       shell: |
         kubectl set image deployment/webapp-deployment webapp-container={{ docker_image }} --record
+      environment:
+        KUBECONFIG: /home/achraf/.kube/config
       register: k8s_update_result
 
     - name: Check deployment rollout status
       shell: |
         kubectl rollout status deployment/webapp-deployment
+      environment:
+        KUBECONFIG: /home/achraf/.kube/config
       register: rollout_status
       failed_when: "'successfully' not in rollout_status.stdout"
 
