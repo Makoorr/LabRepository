@@ -38,6 +38,17 @@ pipeline {
             }
         }
 
+
+        stage('Provision Terraform') {
+            steps {
+                echo 'Provisioning infrastructure using Terraform...'
+                script {
+                    sh 'terraform init'
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 echo 'Deploying updated image to Kubernetes using Ansible...'
