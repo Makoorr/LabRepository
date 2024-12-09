@@ -43,9 +43,8 @@ pipeline {
             steps {
                 echo 'Provisioning infrastructure using Terraform...'
                 script {
-                    sh 'cd infrastructure'
-                    sh 'terraform init'
-                    sh 'terraform apply -auto-approve'
+                    sh 'cd infrastructure && terraform init'
+                    sh 'cd infrastructure && terraform apply -auto-approve'
                 }
             }
         }
