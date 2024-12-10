@@ -15,7 +15,7 @@
 
     - name: Update Kubernetes deployment with the new image
       shell: |
-        kubectl set image deployment/webapp-deployment webapp-container={{ docker_image }} --record
+        kubectl set image deployment/webapp-deployment webapp-container={{ docker_image }}
       environment:
         KUBECONFIG: /home/achraf/.kube/config
       register: k8s_update_result
